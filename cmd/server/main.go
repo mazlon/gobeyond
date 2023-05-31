@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	
 	db, err := sql.Open("postgres", "postgres://maz:test_password@172.17.0.2:5432/maz?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
@@ -23,7 +24,8 @@ func main() {
 		panic(err)
 	}
 	r := gin.Default()
-	router.PrepareRoutes(r)
+	defer db.Close()
+	router.PrepareRoutes(r, *db)
 	// Run the server
 	r.Run(":8080")
 }
