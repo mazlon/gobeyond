@@ -7,11 +7,8 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mazlon/gobeyond/internal/models"
 )
-
-type Questions struct {
-	Question string `json:"question"`
-}
 
 type QuestionResponse struct {
 	Status  int    `json:"status"`
@@ -23,15 +20,15 @@ func AskQuestions(db sql.DB) func(*gin.Context) {
 		query := `insert into questions (question, date_create) 
 		values ($1, NOW()) 
 		RETURNING id`
-		var jsonData Questions		
+		var jsonData models.Questions
 		defer c.Request.Body.Close()
 		decoder := json.NewDecoder(c.Request.Body)
 		err := decoder.Decode(&jsonData)
 		if err != nil {
 			log.Println("error while unmarshaling")
 		}
-		fmt.Println(jsonData)
-		dbRes, err := db.Query(query, jsonData.Question)
+		questionOnFly, _ := json.Marshal(jsonData.Question)
+		dbRes, err := db.Query(query, questionOnFly)
 		if err != nil {
 			log.Println("error while inserting data")
 			log.Println(err)
