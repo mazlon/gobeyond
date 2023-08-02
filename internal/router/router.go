@@ -1,8 +1,10 @@
 package router
 
 func (gbt *GbtServer) PrepareRoutest() {
-	gbt.router.GET("/hello", gbt.HelloWorld)
-	gbt.router.POST("/ask", gbt.AskQuestions)
+	authenticatedRoute := gbt.router.Group("/")
+	authenticatedRoute.Use(AuthorizationMiddleWare())
+	authenticatedRoute.GET("/hello", gbt.HelloWorld)
+	authenticatedRoute.POST("/ask", gbt.AskQuestions)
 	gbt.router.POST("/login", gbt.Login)
 
 }
