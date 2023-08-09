@@ -46,8 +46,8 @@ type QuestionResponse struct {
 // }
 
 func (gbt *GbtServer) AskQuestions(c *gin.Context) {
-	query := `insert into questions (question, date_create) 
-		values ($1, NOW()) 
+	query := `insert into questions (question, date_create, user_id) 
+		values ($1, NOW(),$2) 
 		RETURNING id`
 	var jsonData models.Questions
 	defer c.Request.Body.Close()
@@ -57,7 +57,7 @@ func (gbt *GbtServer) AskQuestions(c *gin.Context) {
 		log.Println("error while unmarshaling")
 	}
 	questionOnFly, _ := json.Marshal(jsonData.Question)
-	dbRes, err := gbt.dbConnection.Query(query, questionOnFly)
+	dbRes, err := gbt.dbConnection.Query(query, questionOnFly, c.Keys[`userID`])
 	if err != nil {
 		log.Println("error while inserting data")
 		log.Println(err)

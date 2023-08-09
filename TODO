@@ -1,8 +1,12 @@
 []Hash password to DB
 []get DB pass from ENV
 [*]write a unit test for auth
-[]Read about type assertion in go
+[*]Read about type assertion in go
 [*] pass token as a cookie -> (check cookies inside postman) -> fetch the token from the cookie -> authorize the token for `helloWorld` endpoint -> if authorized, return `Hello <username>`
-[] gbt.router.Use -> pass middleware and use in the endpoint
-[] in handler read UID from gin.context
-[] create group of routes and apply the middleware only on them
+[*] gbt.router.Use -> pass middleware and use in the endpoint
+[*] in handler read UID from gin.context
+[*] create group of routes and apply the middleware only on them
+[] return question id to client (endpoint `ask`)
+[] Create new table for answers
+[] worker which inserts question in queue and the consumer will call api and insert the answer into db
+[] an endpoint for reading answers 
