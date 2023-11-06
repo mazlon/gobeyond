@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/vgarvardt/gue/v5"
 )
 
 type Cookies map[string]interface{}
@@ -12,10 +13,11 @@ type Cookies map[string]interface{}
 type GbtServer struct {
 	dbConnection *sql.DB
 	router       *gin.Engine
+	queue        *gue.Client
 }
 
-func NewGbtServer(dbConnection *sql.DB, router *gin.Engine) *GbtServer {
-	apiServer := GbtServer{dbConnection: dbConnection, router: router}
+func NewGbtServer(dbConnection *sql.DB, router *gin.Engine, gue *gue.Client) *GbtServer {
+	apiServer := GbtServer{dbConnection: dbConnection, router: router, queue: gue}
 	apiServer.PrepareRoutest()
 	return &apiServer
 
@@ -32,5 +34,3 @@ func SetCookie(c *gin.Context, cookies Cookies) error {
 	}
 	return nil
 }
-
-

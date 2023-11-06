@@ -3,5 +3,5 @@
 package models
 
 type Questions struct {
-	Question map[string]string `json:"question"`
+	Question string `json:"question"`
 }
