@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/vgarvardt/gue/v5"
@@ -60,8 +59,8 @@ func finishedJobsLog(ctx context.Context, j *gue.Job, err error) {
 // 	return nil
 // }
 
-func EnqueuingQuestions(question map[string]string, qClient *gue.Client) error {
-	questionContent, err := json.Marshal(questionText{Content: "simple text"})
+func EnqueuingQuestions(question string, qClient *gue.Client) error {
+	questionContent, err := json.Marshal(questionText{Content: question})
 	if err != nil {
 		fmt.Print("An error while marshaling question before Enqueue!")
 		return err
@@ -90,24 +89,16 @@ func askEnqueuedQuestionsFromApi(ctx context.Context, j *gue.Job) error {
 	return nil
 }
 
-func NewMessagingClient(ctx context.Context) (*gue.Client, error) {
-	pgxCfg, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
+
+func NewMessagingClient(ctx context.Context, connectionPool *pgxpool.Pool) (*gue.Client, error) {
+	poolAdapter := pgxv5.NewConnPool(connectionPool)
+	err := connectionPool.Ping(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-
-	pgxPool, err := pgxpool.NewWithConfig(ctx, pgxCfg)
-	if err != nil {
-		log.Println(err)
-	}
-	defer pgxPool.Close()
-
-	poolAdapter := pgxv5.NewConnPool(pgxPool)
-
 	gc, err := gue.NewClient(poolAdapter)
 	if err != nil {
 		log.Println("Error while calling gue new client")
 	}
 	return gc, nil
 }
-

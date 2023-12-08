@@ -2,12 +2,11 @@ package messaging
 
 import (
 	"context"
-	"encoding/json"
 	"log"
-	"time"
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/vgarvardt/gue/v5"
 )
 
@@ -26,9 +25,8 @@ type questionText struct {
 	Content string
 }
 
-func Queue(ctx context.Context) (gc *gue.Client, err error) {
-	// 
-	// gc, err = NewMessagingClient()
+func Queue(ctx context.Context, connectionPool *pgxpool.Pool) (gc *gue.Client, err error) {
+	gc, err = NewMessagingClient(ctx, connectionPool)
 	if err != nil {
 		log.Println("Error in creating a messaging client")
 		return nil, err
@@ -39,7 +37,7 @@ func Queue(ctx context.Context) (gc *gue.Client, err error) {
 	}
 
 	// create a pool w/ 2 workers
-	workers, err := gue.NewWorkerPool(gc, wm, 2, gue.WithPoolHooksJobDone(finishedJobsLog))
+	workers, err := gue.NewWorkerPool(gc, wm, 2)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -58,37 +56,37 @@ func Queue(ctx context.Context) (gc *gue.Client, err error) {
 		return err
 	})
 
-	args, err := json.Marshal(printNameArgs{Name: "vgarvardt"})
-	if err != nil {
-		log.Println(err)
-	}
+	// args, err := json.Marshal(printNameArgs{Name: "vgarvardt"})
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 
-	j := &gue.Job{
-		Type:  jobTypePrinter,
-		Queue: printerQueue,
-		Args:  args,
-	}
-	if err := gc.Enqueue(context.Background(), j); err != nil {
-		log.Println(err)
-		return nil, err
-	}
+	// j := &gue.Job{
+	// 	Type:  jobTypePrinter,
+	// 	Queue: printerQueue,
+	// 	Args:  args,
+	// }
+	// if err := gc.Enqueue(ctx, j); err != nil {
+	// 	log.Println(err)
+	// 	return nil, err
+	// }
 
-	j = &gue.Job{
-		Type:  jobTypePrinter,
-		Queue: printerQueue,
-		RunAt: time.Now().UTC().Add(30 * time.Second), // delay 30 seconds
-		Args:  args,
-	}
-	if err := gc.Enqueue(context.Background(), j); err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
+	// j = &gue.Job{
+	// 	Type:  jobTypePrinter,
+	// 	Queue: printerQueue,
+	// 	RunAt: time.Now().UTC().Add(30 * time.Second), // delay 30 seconds
+	// 	Args:  args,
+	// }
+	// if err := gc.Enqueue(ctx, j); err != nil {
+	// 	log.Fatal(err)
+	// 	return nil, err
+	// }
 
-	time.Sleep(30 * time.Second) // wait for while
-	// send shutdown signal to worker
-	if err := g.Wait(); err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	return nil, nil
+	// time.Sleep(30 * time.Second) // wait for while
+	// // send shutdown signal to worker
+	// if err := g.Wait(); err != nil {
+	// 	log.Fatal(err)
+	// 	return nil, err
+	// }
+	return gc, nil
 }

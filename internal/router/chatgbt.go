@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mazlon/gobeyond/internal/messaging"
 	"github.com/mazlon/gobeyond/internal/models"
-	//"github.com/mazlon/gobeyond/internal/messaging"
 )
 
 type QuestionResponse struct {
@@ -71,7 +71,10 @@ func (gbt *GbtServer) AskQuestions(c *gin.Context) {
 	if err != nil {
 		log.Println("unable to unmarshaling")
 	}
-	// queue := gbt.queue
-	// messaging.EnqueuingQuestions()
+	queue := gbt.queue
+	err = messaging.EnqueuingQuestions(jsonData.Question, queue)
+	if err != nil {
+		log.Println("Unable to enqueue the question", err)
+	}
 	c.Writer.Write(respJson)
 }

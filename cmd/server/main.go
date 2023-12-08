@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 	"github.com/mazlon/gobeyond/internal/messaging"
 	"github.com/mazlon/gobeyond/internal/models"
@@ -15,8 +16,9 @@ import (
 )
 
 func main() {
-
-	db, err := sql.Open("postgres", "postgres://maz:test_password@172.17.0.2:5432/maz?sslmode=disable")
+	dbConnection := os.Getenv("DATABASE_URL")
+	log.Println(dbConnection)
+	db, err := sql.Open("postgres", dbConnection)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,9 +30,18 @@ func main() {
 	defer db.Close()
 	ctx, shutdown := context.WithCancel(context.Background())
 	defer shutdown()
-	gue, err := messaging.Queue(ctx)
+	pgxCfg, err := pgxpool.ParseConfig(dbConnection)
 	if err != nil {
-		fmt.Print("Error in Queue system")
+		log.Println(err)
+	}
+	connectionPool, err := pgxpool.NewWithConfig(ctx, pgxCfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer connectionPool.Close()
+	gue, err := messaging.Queue(ctx, connectionPool)
+	if err != nil {
+		log.Println("Error in Queue system", err)
 	}
 	router.NewGbtServer(db, r, gue)
 
