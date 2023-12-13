@@ -7,60 +7,30 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mazlon/gobeyond/internal/models"
 	"github.com/vgarvardt/gue/v5"
 	"github.com/vgarvardt/gue/v5/adapter/pgxv5"
 )
-
-type fetchDBArgs struct {
-	UserID int
-}
-
-type questions struct {
-	question string
-}
-
-func printName(ctx context.Context, j *gue.Job) error {
-	var args printNameArgs
-	if err := json.Unmarshal(j.Args, &args); err != nil {
-		return err
-	}
-	fmt.Printf("Hello %s!\n", args.Name)
-	return nil
-}
 
 func finishedJobsLog(ctx context.Context, j *gue.Job, err error) {
 	if err != nil {
 		return
 	}
 
-	j.Tx().Exec(
+	_, err = j.Tx().Exec(
 		ctx,
-		"INSERT INTO finished_jobs_log (queue, type, run_at) VALUES ($1, $2, now())",
-		j.Queue,
-		j.Type,
+		"INSERT INTO finished_jobs_log (queue_id, queue_body, run_at) VALUES ($1, $2, now())",
+		j.ID,
+		string(j.Args[:]),
 	)
+	if err != nil {
+		// Used Fatal here because if this function isn't working, the jobs will run infinitely
+		log.Fatal(err)
+	}
 }
 
-// func fetchAndPrintFromDB(ctx context.Context, j *gue.Job) error {
-// 	var args fetchDBArgs
-// 	if err := json.Unmarshal(j.Args, &args); err != nil {
-// 		return err
-// 	}
-
-// 	var question questions
-// 	err := pgxpool.QueryRow(ctx, "SELECT question FROM users WHERE id=$1", args.UserID).Scan(&question.question)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// Print the data obtained
-// 	fmt.Printf("Question: %d, ID: %s\n", question.question, args.UserID)
-
-// 	return nil
-// }
-
-func EnqueuingQuestions(question string, qClient *gue.Client) error {
-	questionContent, err := json.Marshal(questionText{Content: question})
+func EnqueuingQuestions(question models.Questions, qClient *gue.Client) error {
+	questionContent, err := json.Marshal(question)
 	if err != nil {
 		fmt.Print("An error while marshaling question before Enqueue!")
 		return err
@@ -80,15 +50,14 @@ func EnqueuingQuestions(question string, qClient *gue.Client) error {
 }
 
 func askEnqueuedQuestionsFromApi(ctx context.Context, j *gue.Job) error {
-	var question questionText
+	var question models.Questions
 	if err := json.Unmarshal(j.Args, &question); err != nil {
-		fmt.Print("Error while unmarshaling the question before sending to API")
+		log.Println("Error while unmarshaling the question before sending to API:", err)
 		return err
 	}
-	fmt.Print(question)
+	log.Println("Question: ", question.Question, "ID: ", question.ID)
 	return nil
 }
-
 
 func NewMessagingClient(ctx context.Context, connectionPool *pgxpool.Pool) (*gue.Client, error) {
 	poolAdapter := pgxv5.NewConnPool(connectionPool)

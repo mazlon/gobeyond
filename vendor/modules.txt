@@ -1,6 +1,3 @@
-# github.com/bgentry/que-go v1.0.1
-## explicit
-github.com/bgentry/que-go
 # github.com/bytedance/sonic v1.8.0
 ## explicit; go 1.15
 github.com/bytedance/sonic
@@ -72,28 +69,21 @@ github.com/golang-migrate/migrate/v4/internal/url
 github.com/golang-migrate/migrate/v4/source
 github.com/golang-migrate/migrate/v4/source/file
 github.com/golang-migrate/migrate/v4/source/iofs
+# github.com/google/uuid v1.5.0
+## explicit
+github.com/google/uuid
 # github.com/hashicorp/errwrap v1.1.0
 ## explicit
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-multierror v1.1.1
 ## explicit; go 1.13
 github.com/hashicorp/go-multierror
-# github.com/jackc/fake v0.0.0-20150926172116-812a484cc733
-## explicit
 # github.com/jackc/pgpassfile v1.0.0
 ## explicit; go 1.12
 github.com/jackc/pgpassfile
 # github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a
 ## explicit; go 1.14
 github.com/jackc/pgservicefile
-# github.com/jackc/pgx v3.6.2+incompatible
-## explicit
-github.com/jackc/pgx
-github.com/jackc/pgx/chunkreader
-github.com/jackc/pgx/internal/sanitize
-github.com/jackc/pgx/pgio
-github.com/jackc/pgx/pgproto3
-github.com/jackc/pgx/pgtype
 # github.com/jackc/pgx/v5 v5.4.3
 ## explicit; go 1.19
 github.com/jackc/pgx/v5
@@ -148,9 +138,6 @@ github.com/pelletier/go-toml/v2/internal/characters
 github.com/pelletier/go-toml/v2/internal/danger
 github.com/pelletier/go-toml/v2/internal/tracker
 github.com/pelletier/go-toml/v2/unstable
-# github.com/pkg/errors v0.9.1
-## explicit
-github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
