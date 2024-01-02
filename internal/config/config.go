@@ -1,5 +1,6 @@
-//This package contains functions to load configuration from various sources such as
-//  environment variables, configuration files, and command-line arguments.
+// This package contains functions to load configuration from various sources such as
+//
+//	environment variables, configuration files, and command-line arguments.
 package config
 
 import (
@@ -23,4 +24,3 @@ func GetTheEnv(key string) string {
 		return ""
 	}
 }
-

@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mazlon/gobeyond/internal/ai"
 	"github.com/mazlon/gobeyond/internal/models"
 	"github.com/vgarvardt/gue/v5"
 	"github.com/vgarvardt/gue/v5/adapter/pgxv5"
@@ -56,6 +57,22 @@ func askEnqueuedQuestionsFromApi(ctx context.Context, j *gue.Job) error {
 		return err
 	}
 	log.Println("Question: ", question.Question, "ID: ", question.ID)
+	gptResponse, err := ai.AskFromChatGptSingleQuestion(&question)
+	if err != nil {
+		log.Println("An error while askign the question from chatGPT: ", err)
+		return err
+	}
+	log.Println("message: ", gptResponse.Choices[0].Message.Content, " qId: ", gptResponse.QuestionId)
+	_, err = j.Tx().Exec(
+		ctx,
+		"INSERT INTO answers (answer, question_id, date_create) VALUES ($1, $2, now())",
+		gptResponse.Choices[0].Message.Content,
+		gptResponse.QuestionId,
+	)
+	if err != nil {
+		log.Println("An error while inserting the answer: ", err)
+		return err
+	}
 	return nil
 }
 

@@ -4,19 +4,19 @@ import (
 	"context"
 	"database/sql"
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
+	"github.com/mazlon/gobeyond/internal/config"
 	"github.com/mazlon/gobeyond/internal/messaging"
 	"github.com/mazlon/gobeyond/internal/models"
 	"github.com/mazlon/gobeyond/internal/router"
 )
 
 func main() {
-	dbConnection := os.Getenv("DATABASE_URL")
+	dbConnection := config.GetTheEnv("DATABASE_URL")
 	log.Println(dbConnection)
 	db, err := sql.Open("postgres", dbConnection)
 	if err != nil {
